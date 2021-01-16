@@ -7,8 +7,11 @@
 //
 
 #import "TDCViewController.h"
+#import <DataBaseCore/DataBaseCoreManager.h>
 
 @interface TDCViewController ()
+
+@property (nonatomic, strong) DataBaseCoreManager *dataBaseM;
 
 @end
 
@@ -17,13 +20,23 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+	
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark - layzing
+
+-(DataBaseCoreManager*)dataBaseM{
+    if (!_dataBaseM) {
+        _dataBaseM = [[DataBaseCoreManager alloc] init];
+    }
+    return _dataBaseM;
 }
 
 @end
