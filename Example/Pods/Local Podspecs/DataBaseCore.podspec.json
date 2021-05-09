@@ -1,0 +1,30 @@
+{
+  "name": "DataBaseCore",
+  "version": "0.1.0",
+  "summary": "A short description of DataBaseCore.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/tudaican/DataBaseCore",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "tudaican": "cqtlmdx@163.com"
+  },
+  "source": {
+    "git": "https://github.com/tudaican/DataBaseCore.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "DataBaseCore/Classes/**/*",
+  "dependencies": {
+    "FMDB": [
+
+    ],
+    "MJExtension": [
+
+    ]
+  }
+}

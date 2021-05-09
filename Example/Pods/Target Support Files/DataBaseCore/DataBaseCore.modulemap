@@ -1,0 +1,6 @@
+framework module DataBaseCore {
+  umbrella header "DataBaseCore-umbrella.h"
+
+  export *
+  module * { export * }
+}
