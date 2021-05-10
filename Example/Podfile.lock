@@ -1,0 +1,37 @@
+PODS:
+  - DataBaseCore (0.1.0):
+    - FMDB
+    - MJExtension
+  - Expecta (1.0.6)
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
+  - MJExtension (3.2.4)
+  - Specta (1.0.7)
+
+DEPENDENCIES:
+  - DataBaseCore (from `../`)
+  - Expecta
+  - Specta
+
+SPEC REPOS:
+  trunk:
+    - Expecta
+    - FMDB
+    - MJExtension
+    - Specta
+
+EXTERNAL SOURCES:
+  DataBaseCore:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  DataBaseCore: c463f9f5736af7cb001d12d9ed1ef9f9953dcfd2
+  Expecta: 3b6bd90a64b9a1dcb0b70aa0e10a7f8f631667d5
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  MJExtension: 88e0900751b6cac8de1cf724ca9838a0b28d5acb
+  Specta: 3e1bd89c3517421982dc4d1c992503e48bd5fe66
+
+PODFILE CHECKSUM: d0e6f6f126b569c2e1db7317f9a4a287c45ec9b1
+
+COCOAPODS: 1.9.3
