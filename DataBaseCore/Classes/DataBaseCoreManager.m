@@ -170,7 +170,7 @@
             [values appendFormat:@" %@ = '%@'",key,value];
         }else
             [values appendFormat:@" %@ = %@",key,value];
-        if (idx != lastIndex)[values appendString:@","];
+        if (idx != lastIndex)[values appendString:@" and "];
     }];
     if (values.length >0) [querySql appendFormat:@" WHERE %@", values];
     [querySql appendString:@";"];
