@@ -247,9 +247,9 @@
     [modelKeyValues.allKeys enumerateObjectsUsingBlock:^(NSString *key, NSUInteger idx, BOOL * _Nonnull stop) {
         id value = modelKeyValues[key];
         if ([value isKindOfClass:[NSString class]]) {
-            [values appendFormat:@" %@='%@'",key,value];
+            [values appendFormat:@" %@='%@' ",key,value];
         }else
-            [values appendFormat:@" %@=%@",key,value];
+            [values appendFormat:@" %@=%@ ",key,value];
         if (idx != lastIndex)[values appendString:@","];
     }];
     [sql appendFormat:@" SET%@", values];
@@ -257,10 +257,10 @@
     [codition.allKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         id value = codition[obj];
         if ([value isKindOfClass:[NSString class]]) {
-           [cons appendFormat:@" %@='%@'",obj,value];
+           [cons appendFormat:@" %@='%@' ",obj,value];
         }else
-           [cons appendFormat:@" %@=%@",obj,value];
-        if (idx != (codition.count-1))[cons appendString:@"AND "];
+           [cons appendFormat:@" %@=%@ ",obj,value];
+        if (idx != (codition.count-1))[cons appendString:@" AND "];
     }];
     
     [sql appendFormat:@" WHERE %@", cons];
@@ -276,8 +276,8 @@
     NSMutableString *sql = [NSMutableString stringWithFormat:@"DELETE FROM %@",name];
     NSMutableString *conS = [NSMutableString string];
     [condition.allKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [conS appendFormat:@" %@ = '%@'",obj, condition[obj]];
-        if (idx != condition.count-1)[conS appendString:@"AND"];
+        [conS appendFormat:@" %@ = '%@' ",obj, condition[obj]];
+        if (idx != condition.count-1)[conS appendString:@" AND "];
     }];
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
          BOOL result = [db executeUpdate:sql];
