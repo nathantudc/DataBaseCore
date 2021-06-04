@@ -290,7 +290,7 @@
 -(void)addColumnForTable:(NSString*)name columns:(NSArray<NSDictionary*>*)columns{
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
         [columns enumerateObjectsUsingBlock:^(NSDictionary*dic, NSUInteger idx, BOOL * _Nonnull stop) {
-            NSString* querySql = [NSString stringWithFormat:@"select * from sqlite_master where name='%@' and sql like '%%@%%'",dic[@"name"]];
+            NSString* querySql = [NSString stringWithFormat:@"select * from sqlite_master where name='%@' and sql like '%%%@%%'",name,dic[@"name"]];
             FMResultSet *rs = [db executeQuery:querySql];
             if (![rs next]) {
                 NSString *addSql = [NSString stringWithFormat:@"ALTER TABLE %@ ADD COLUMN %@ %@",name,dic[@"name"],dic[@"type"]];
