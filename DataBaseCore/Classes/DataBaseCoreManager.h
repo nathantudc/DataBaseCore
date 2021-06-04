@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 文件扩展名
 @property (nonatomic, copy) NSString *extension;
 
+@property (nonatomic, copy) NSString *version;
+
 @end
 
 @interface DataBaseCoreManager : NSObject

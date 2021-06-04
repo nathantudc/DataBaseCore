@@ -252,7 +252,7 @@
             [values appendFormat:@" %@=%@ ",key,value];
         if (idx != lastIndex)[values appendString:@","];
     }];
-    [sql appendFormat:@" SET%@", values];
+    [sql appendFormat:@" SET %@", values];
     NSMutableString *cons = [NSMutableString string];
     [codition.allKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         id value = codition[obj];
@@ -305,6 +305,7 @@
 -(void)versionControl{
     NSString * version_old = [[NSUserDefaults standardUserDefaults] stringForKey:TDC_DBVERSION];
     NSString * version_new = [NSString stringWithFormat:@"%@",DB_Version];
+    if (_con && _con.version) version_new = [NSString stringWithFormat:@"%@",_con.version];
     if (!version_old ||
         [version_new isEqualToString:version_old]) {
         [[NSUserDefaults standardUserDefaults] setObject:version_new forKey:TDC_DBVERSION];
