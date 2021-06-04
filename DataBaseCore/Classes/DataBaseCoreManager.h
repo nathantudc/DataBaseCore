@@ -88,6 +88,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param block 回调
 -(void)queryDataWithSql:(NSString*)sql model:(Class)cls  primaryKey:(nullable NSString*)pKey  block:(void(^)(NSArray*datas))block;
 
+/// 给表增加列
+/// @param name 表名称
+/// @param columns 列集合
+-(void)addColumnForTable:(NSString*)name columns:(NSArray<NSDictionary*>*)columns;
+
 @end
 
 NS_ASSUME_NONNULL_END

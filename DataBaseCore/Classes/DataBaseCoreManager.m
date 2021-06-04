@@ -285,6 +285,21 @@
     }];
 }
 
+#pragma mark - 添加列
+
+-(void)addColumnForTable:(NSString*)name columns:(NSArray<NSDictionary*>*)columns{
+    [self.databaseQueue inDatabase:^(FMDatabase *db) {
+        [columns enumerateObjectsUsingBlock:^(NSDictionary*dic, NSUInteger idx, BOOL * _Nonnull stop) {
+            NSString* querySql = [NSString stringWithFormat:@"select * from sqlite_master where name='%@' and sql like '%%@%%'",dic[@"name"]];
+            FMResultSet *rs = [db executeQuery:querySql];
+            if (![rs next]) {
+                NSString *addSql = [NSString stringWithFormat:@"ALTER TABLE %@ ADD COLUMN %@ %@",name,dic[@"name"],dic[@"type"]];
+                if (![db executeUpdate:addSql])NSLog(@"ADD COLUMN faile");
+            }
+        }];
+    }];
+}
+
 #pragma mark - layzing
 -(FMDatabaseQueue *)databaseQueue {
    NSAssert(_con,@"configer must not  nil");
