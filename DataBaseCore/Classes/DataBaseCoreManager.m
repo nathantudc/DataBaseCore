@@ -193,8 +193,9 @@
         while (set.next) {
             id data = [class new];
             for (NSString *key in keys) {
-                if ([set objectForColumn:key]){
-                    [data setValue:[set objectForColumn:key] forKey:key];
+                id value = [set objectForColumn:key];
+                if (value && ![value isKindOfClass:[NSNull class]]){
+                    [data setValue:value forKey:key];
                 }
             }
             if (pKey)[data setValue:[set objectForColumn:@"id"] forKey:pKey];
@@ -226,8 +227,9 @@
         while (set.next) {
             id model = [class new];
             for (NSString *key in keys) {
-                if ([set objectForColumn:key]){
-                    [model setValue:[set objectForColumn:key] forKey:key];
+                id value = [set objectForColumn:key];
+                if (value && ![value isKindOfClass:[NSNull class]]){
+                    [model setValue:value forKey:key];
                 }
             }
             if (pKey)[model setValue:[set objectForColumn:@"id"] forKey:pKey];
