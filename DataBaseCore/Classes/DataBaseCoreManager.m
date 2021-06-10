@@ -277,11 +277,14 @@
 -(void)deleteWithName:(NSString*)name  condition:(NSDictionary*)condition  block:(void(^)(NSInteger row))block{
     NSMutableString *sql = [NSMutableString stringWithFormat:@"DELETE FROM %@",name];
     NSMutableString *conS = [NSMutableString string];
-    [condition.allKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [conS appendFormat:@" %@ = '%@' ",obj, condition[obj]];
+    [condition.allKeys enumerateObjectsUsingBlock:^(NSString *key, NSUInteger idx, BOOL * _Nonnull stop) {
+//        if ([key isEqualToString:@"id"]) {
+//
+//        }else
+        [conS appendFormat:@" %@ = %@ ",key, condition[key]];
         if (idx != condition.count-1)[conS appendString:@" AND "];
     }];
-    if (conS.length>0)[sql appendFormat:@"WHERE %@",conS];
+    if (conS.length>0)[sql appendFormat:@" WHERE %@",conS];
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
          BOOL result = [db executeUpdate:sql];
          block?block(result?1:-1):nil;
