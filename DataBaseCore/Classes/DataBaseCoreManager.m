@@ -281,6 +281,7 @@
         [conS appendFormat:@" %@ = '%@' ",obj, condition[obj]];
         if (idx != condition.count-1)[conS appendString:@" AND "];
     }];
+    if (conS.length>0)[sql appendFormat:@"WHERE %@",conS];
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
          BOOL result = [db executeUpdate:sql];
          block?block(result?1:-1):nil;
