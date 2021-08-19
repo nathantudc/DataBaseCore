@@ -17,7 +17,8 @@
 
 @interface DataBaseCoreManager ()
 
-@property (nonatomic, strong) FMDatabaseQueue *queue;
+//@property (nonatomic, strong) FMDatabaseQueue *queue;
+@property (nonatomic, strong) FMDatabasePool *queue;
 @property (nonatomic, strong) NSDictionary *colunmsFields;
 
 @end
@@ -315,7 +316,8 @@
     pthread_mutex_lock(&_dbLock);
     if (!_queue) {
         NSString *path = [self createFileWithDesDir:_con.dirName fileNmae:_con.fileName extension:_con.extension];
-        _queue = [FMDatabaseQueue databaseQueueWithPath:path flags:SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE];
+//        _queue = [FMDatabaseQueue databaseQueueWithPath:path flags:SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE];
+        _queue = [FMDatabasePool databaseQueueWithPath:path flags:SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE];
     }
     pthread_mutex_unlock(&_dbLock);
     return _queue;
