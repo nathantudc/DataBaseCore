@@ -317,7 +317,7 @@
     if (!_queue) {
         NSString *path = [self createFileWithDesDir:_con.dirName fileNmae:_con.fileName extension:_con.extension];
 //        _queue = [FMDatabaseQueue databaseQueueWithPath:path flags:SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE];
-        _queue = [FMDatabasePool databaseQueueWithPath:path flags:SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE];
+        _queue = [FMDatabasePool databasePoolWithPath:path flags:SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE];
     }
     pthread_mutex_unlock(&_dbLock);
     return _queue;
