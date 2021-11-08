@@ -308,7 +308,7 @@
 }
 
 #pragma mark - layzing
--(FMDatabaseQueue *)databaseQueue {
+-(FMDatabasePool *)databaseQueue {
    NSAssert(_con,@"configer must not  nil");
    NSAssert(_con.dirName,@"dirName must not  nil");
    NSAssert(_con.fileName,@"fileName must not  nil");
