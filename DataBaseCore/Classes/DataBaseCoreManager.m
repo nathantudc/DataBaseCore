@@ -89,6 +89,39 @@
      return [self createTableIfNotExistsWithName:name];
 }
 
+-(BOOL)createTable:(NSString*)name  modelColunms:(NSString*)modelClass unique:(nullable NSString*)unique
+{
+     NSAssert(name,@"tablename must not  nil");
+     NSAssert(_con,@"configer must not  nil");
+     NSAssert(_con.dirName,@"dirName must not  nil");
+     NSAssert(_con.fileName,@"fileName must not  nil");
+     NSAssert(_con.extension,@"extension must not  nil");
+      NSMutableDictionary *colunms = [NSMutableDictionary dictionary];
+     Class cls = NSClassFromString(modelClass);
+     [cls mj_enumerateProperties:^(MJProperty *property, BOOL *stop) {
+        [colunms addEntriesFromDictionary:[self _propertyToSqlType:property]];
+     }];
+      _colunmsFields = [colunms copy];
+    if (unique && unique.length > 0)
+    {
+        NSString *str = [NSString stringWithFormat:@"CREATE TABLE  IF NOT EXISTS %@ (id INTEGER PRIMARY KEY AUTOINCREMENT,", name];
+        NSMutableString *sql = [[NSMutableString alloc] initWithString:str];
+        NSInteger lastCount = self.colunmsFields.count-1;
+        [self.colunmsFields.allKeys enumerateObjectsUsingBlock:^(NSString *key, NSUInteger idx, BOOL * _Nonnull stop) {
+           [sql appendFormat:@" %@ %@",key,self.colunmsFields[key]];
+           if (idx != lastCount)[sql appendString:@", "];
+        }];
+        [sql appendFormat:@", UNIQUE(%@)",unique];
+        [sql appendString:@", _reserve TEXT);"];
+        __block BOOL result = NO;
+        [self.databaseQueue inDatabase:^(FMDatabase *db) {
+            result = [db executeUpdate:sql];
+        }];
+        return result;
+    }
+     return [self createTableIfNotExistsWithName:name];
+}
+
 /// 创建表
 /// @param name 表名称
 /// @param colunmsDic 以字典的方式创建

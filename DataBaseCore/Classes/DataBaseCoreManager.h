@@ -40,6 +40,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 创建表
 /// @param name 表名称
+/// @param modelClass 列model名称
+/// @param unique 唯一字段
+-(BOOL)createTable:(NSString*)name  modelColunms:(NSString*)modelClass unique:(nullable NSString*)unique;
+
+/// 创建表
+/// @param name 表名称
 /// @param colunmsDic 以字典的方式创建 @{@"name":@"TXT"}
 -(BOOL)createTable:(NSString*)name  dicColunms:(NSDictionary*)colunmsDic;
 
