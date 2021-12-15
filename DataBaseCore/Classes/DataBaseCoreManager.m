@@ -116,7 +116,6 @@
         __block BOOL result = NO;
         [self.databaseQueue inDatabase:^(FMDatabase *db) {
             result = [db executeUpdate:sql];
-            [db close];
         }];
         return result;
     }
@@ -156,8 +155,35 @@
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
         result = [db executeUpdate:sqlStr];
         row = db.lastInsertRowId;
-        [db close];
     }];
+    block?block(result?row:-1):nil;
+}
+
+//MARK: - 获取天数据 modify by nathan 2021.12.15
+-(void)insertWithName:(NSString*)name models:(NSArray*)models  block:(void(^)(NSInteger row))block
+{
+    __block BOOL isRollBack = NO;
+    __block BOOL result = NO;
+    __block NSInteger row = 0;
+    [self.databaseQueue inDatabase:^(FMDatabase *db) {
+        [db beginTransaction];
+        @try {
+            [models enumerateObjectsUsingBlock:^(id  _Nonnull model, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSString *sqlStr = [self insertExecuteSQLOfTableName:name dataDic:[model mj_keyValues]];
+                result = [db executeUpdate:sqlStr];
+                row = db.lastInsertRowId;
+            }];
+        } @catch (NSException *exception) {
+            isRollBack = YES;
+            [db rollback];
+        } @finally {
+            if (!isRollBack)
+            {
+                [db commit];
+            }
+        }
+        [db close];
+     }];
     block?block(result?row:-1):nil;
 }
 
@@ -237,7 +263,6 @@
             if (pKey)[data setValue:[set objectForColumn:@"id"] forKey:pKey];
             [resArr addObject:data];
         }
-        [db close];
     }];
     block?block(resArr):nil;
 }
@@ -272,8 +297,7 @@
             if (pKey)[model setValue:[set objectForColumn:@"id"] forKey:pKey];
             [resultArray addObject:model];
         }
-        [db close];
-    }];
+     }];
     block?block(resultArray):nil;
 }
 
@@ -306,8 +330,7 @@
     [sql appendFormat:@" WHERE %@", cons];
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
          BOOL result = [db executeUpdate:sql];
-        [db close];
-         block?block(result?1:-1):nil;
+          block?block(result?1:-1):nil;
     }];
 }
 
@@ -326,7 +349,6 @@
     if (conS.length>0)[sql appendFormat:@" WHERE %@",conS];
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
          BOOL result = [db executeUpdate:sql];
-        [db close];
          block?block(result?1:-1):nil;
     }];
 }
@@ -343,7 +365,6 @@
                 if (![db executeUpdate:addSql])NSLog(@"ADD COLUMN faile");
             }
         }];
-        [db close];
     }];
 }
 
@@ -508,7 +529,6 @@
     __block BOOL result = NO;
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
         result = [db executeUpdate:sql];
-        [db close];
     }];
     return result;
 }

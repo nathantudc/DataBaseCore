@@ -55,6 +55,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param block 回调  失败 则row=-1
 -(void)insertWithName:(NSString*)name  model:(id)model  block:(void(^)(NSInteger row))block;
 
+/// 批量插入数据
+/// @param name 表名称
+/// @param models 数据
+/// @param block 回调
+-(void)insertWithName:(NSString*)name  models:(NSArray*)models  block:(void(^)(NSInteger row))block;
+
+
 /// 查询数据
 /// @param name 表名
 /// @param model 数据
