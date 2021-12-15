@@ -171,7 +171,7 @@
 }
 
 -(NSString*)insertExecuteSQLOfTableName:(NSString*)name  dataDic:(NSDictionary*)dic{
-    NSMutableString *sql = [[NSMutableString alloc] initWithFormat:@"INSERT INTO %@ ", name];
+    NSMutableString *sql = [[NSMutableString alloc] initWithFormat:@"INSERT OR REPLACE INTO %@ ", name];
     NSMutableString *values= [[NSMutableString alloc] initWithFormat:@"("];
     NSMutableString *keys = [[NSMutableString alloc] initWithFormat:@"("];
     NSInteger lastCount = dic.count - 1;
