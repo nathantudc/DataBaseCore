@@ -111,7 +111,7 @@
            [sql appendFormat:@" %@ %@",key,self.colunmsFields[key]];
            if (idx != lastCount)[sql appendString:@", "];
         }];
-        [sql appendFormat:@", _reserve TEXT, UNIQUE(%@)",unique];
+        [sql appendFormat:@", _reserve TEXT, UNIQUE(%@))",unique];
 //        [sql appendString:@", _reserve TEXT);"];
         __block BOOL result = NO;
         [self.databaseQueue inDatabase:^(FMDatabase *db) {
