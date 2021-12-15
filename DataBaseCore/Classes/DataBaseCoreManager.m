@@ -78,7 +78,7 @@
      NSAssert(_con.dirName,@"dirName must not  nil");
      NSAssert(_con.fileName,@"fileName must not  nil");
      NSAssert(_con.extension,@"extension must not  nil");
-     [self versionControl];
+//     [self versionControl];
      NSMutableDictionary *colunms = [NSMutableDictionary dictionary];
      Class cls = NSClassFromString(modelClass);
      [cls mj_enumerateProperties:^(MJProperty *property, BOOL *stop) {
@@ -116,6 +116,7 @@
         __block BOOL result = NO;
         [self.databaseQueue inDatabase:^(FMDatabase *db) {
             result = [db executeUpdate:sql];
+            [db close];
         }];
         return result;
     }
@@ -131,7 +132,7 @@
     NSAssert(!_con.dirName,@"dirName must not  nil");
     NSAssert(!_con.fileName,@"fileName must not  nil");
     NSAssert(!_con.extension,@"extension must not  nil");
-    [self versionControl];
+//    [self versionControl];
     _colunmsFields = [colunmsDic copy];
     return [self createTableIfNotExistsWithName:name];
 }
@@ -155,6 +156,7 @@
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
         result = [db executeUpdate:sqlStr];
         row = db.lastInsertRowId;
+        [db close];
     }];
     block?block(result?row:-1):nil;
 }
@@ -235,6 +237,7 @@
             if (pKey)[data setValue:[set objectForColumn:@"id"] forKey:pKey];
             [resArr addObject:data];
         }
+        [db close];
     }];
     block?block(resArr):nil;
 }
@@ -269,6 +272,7 @@
             if (pKey)[model setValue:[set objectForColumn:@"id"] forKey:pKey];
             [resultArray addObject:model];
         }
+        [db close];
     }];
     block?block(resultArray):nil;
 }
@@ -302,6 +306,7 @@
     [sql appendFormat:@" WHERE %@", cons];
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
          BOOL result = [db executeUpdate:sql];
+        [db close];
          block?block(result?1:-1):nil;
     }];
 }
@@ -321,6 +326,7 @@
     if (conS.length>0)[sql appendFormat:@" WHERE %@",conS];
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
          BOOL result = [db executeUpdate:sql];
+        [db close];
          block?block(result?1:-1):nil;
     }];
 }
@@ -337,6 +343,7 @@
                 if (![db executeUpdate:addSql])NSLog(@"ADD COLUMN faile");
             }
         }];
+        [db close];
     }];
 }
 
@@ -501,6 +508,7 @@
     __block BOOL result = NO;
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
         result = [db executeUpdate:sql];
+        [db close];
     }];
     return result;
 }
