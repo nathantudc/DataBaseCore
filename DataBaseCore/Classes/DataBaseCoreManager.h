@@ -76,6 +76,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param block 回调
 -(void)updatetWithName:(NSString*)name  model:(id)model condition:(NSDictionary*)codition block:(void(^)(NSInteger row))block;
 
+/// 使用sql语句更新数据
+/// @param sql sql
+/// @param block 回调
+- (void)updatetWithSql:(NSString *)sql  block:(void(^)(NSInteger row))block;
+
 /// 删除数据
 /// @param name 表名称
 /// @param codition 条件

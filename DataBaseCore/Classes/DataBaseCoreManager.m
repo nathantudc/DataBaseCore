@@ -334,6 +334,16 @@
     }];
 }
 
+
+//MARK: - 更新数据
+
+- (void)updatetWithSql:(NSString *)sql  block:(void(^)(NSInteger row))block {
+    [self.databaseQueue inDatabase:^(FMDatabase *db) {
+         BOOL result = [db executeUpdate:sql];
+          block?block(result?1:-1):nil;
+    }];
+}
+
 #pragma mark - 删除数据
 
 -(void)deleteWithName:(NSString*)name  condition:(NSDictionary*)condition  block:(void(^)(NSInteger row))block{
