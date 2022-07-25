@@ -29,25 +29,17 @@
 }
 
 
-//- (instancetype)init{
-//    self = [super init];
-//    if (self) {
-//        pthread_mutex_init(&_dbLock, NULL);
-//    }
-//    return self;
-//}
-
-- (void)dealloc{
+- (void)dealloc {
     pthread_mutex_destroy(&_dbLock);
 }
 
-- (void)receiveMemoryWarning{
+- (void)receiveMemoryWarning {
     pthread_mutex_lock(&_dbLock);
     _queue = nil;
     pthread_mutex_unlock(&_dbLock);
 }
 
--(instancetype)initWithConfig:(DataBaseCoreConfig*)con{
+- (instancetype)initWithConfig:(DataBaseCoreConfig*)con {
     self = [super init];
     if (self) {
         _con = con;
@@ -56,8 +48,10 @@
     return self;
 }
 
-#pragma mark - 删除表
--(void)dropOfTableName:(NSString*)name block:(void(^)(BOOL success))block{
+
+//MARK: - 删除表
+
+- (void)dropOfTableName:(NSString*)name block:(void(^)(BOOL success))block {
     NSAssert(name,@"colunmsFields must not nil");
     NSString *sql = [NSString stringWithFormat:@"DROP TABLE IF EXISTS %@ ;", name];
     __block BOOL result = NO;
@@ -67,18 +61,18 @@
     block?block(result):nil;
 }
 
-#pragma mark - 创建表
+
+//MARK: - 创建表
 /// 创建表
 /// @param name 表名称
 /// @param modelClass 列model 名称
 /// @param extra 额外字段
--(BOOL)createTable:(NSString*)name  modelColunms:(NSString*)modelClass extra:(nullable NSDictionary*)extra{
+- (BOOL)createTable:(NSString*)name  modelColunms:(NSString*)modelClass extra:(nullable NSDictionary*)extra {
      NSAssert(name,@"tablename must not  nil");
      NSAssert(_con,@"configer must not  nil");
      NSAssert(_con.dirName,@"dirName must not  nil");
      NSAssert(_con.fileName,@"fileName must not  nil");
      NSAssert(_con.extension,@"extension must not  nil");
-//     [self versionControl];
      NSMutableDictionary *colunms = [NSMutableDictionary dictionary];
      Class cls = NSClassFromString(modelClass);
      [cls mj_enumerateProperties:^(MJProperty *property, BOOL *stop) {
@@ -89,8 +83,7 @@
      return [self createTableIfNotExistsWithName:name];
 }
 
--(BOOL)createTable:(NSString*)name  modelColunms:(NSString*)modelClass unique:(nullable NSString*)unique
-{
+- (BOOL)createTable:(NSString*)name  modelColunms:(NSString*)modelClass unique:(nullable NSString*)unique {
      NSAssert(name,@"tablename must not  nil");
      NSAssert(_con,@"configer must not  nil");
      NSAssert(_con.dirName,@"dirName must not  nil");
@@ -102,8 +95,7 @@
         [colunms addEntriesFromDictionary:[self _propertyToSqlType:property]];
      }];
       _colunmsFields = [colunms copy];
-    if (unique && unique.length > 0)
-    {
+    if (unique && unique.length > 0) {
         NSString *str = [NSString stringWithFormat:@"CREATE TABLE  IF NOT EXISTS %@ (id INTEGER PRIMARY KEY AUTOINCREMENT,", name];
         NSMutableString *sql = [[NSMutableString alloc] initWithString:str];
         NSInteger lastCount = self.colunmsFields.count-1;
@@ -112,7 +104,6 @@
            if (idx != lastCount)[sql appendString:@", "];
         }];
         [sql appendFormat:@", _reserve TEXT, UNIQUE(%@))",unique];
-//        [sql appendString:@", _reserve TEXT);"];
         __block BOOL result = NO;
         [self.databaseQueue inDatabase:^(FMDatabase *db) {
             result = [db executeUpdate:sql];
@@ -131,20 +122,24 @@
     NSAssert(!_con.dirName,@"dirName must not  nil");
     NSAssert(!_con.fileName,@"fileName must not  nil");
     NSAssert(!_con.extension,@"extension must not  nil");
-//    [self versionControl];
     _colunmsFields = [colunmsDic copy];
     return [self createTableIfNotExistsWithName:name];
 }
 
 -(NSDictionary *)_propertyToSqlType:(MJProperty *)pro{
-    NSDictionary *switchD = @{@"d":@"FLOAT",@"q":@"INTEGER", @"f":@"REAL", @"d":@"REAL", @"NSString":@"TEXT DEFAULT ''", @"B":@"INTEGER"};
+    NSDictionary *switchD = @{@"d":@"FLOAT",
+                              @"q":@"INTEGER",
+                              @"f":@"REAL",
+                              @"NSString":@"TEXT DEFAULT ''",
+                              @"B":@"INTEGER"};
     if (switchD[pro.type.code] == nil) {
         return @{pro.name: @"TEXT"};//默认TEXT存储类型
     }
     return @{pro.name:switchD[pro.type.code]};
 }
 
-#pragma mark  - 插入数据
+
+//MARK: - 插入数据
 
 - (void)insertWithName:(NSString*)name  model:(id)model  block:(void(^)(NSInteger row))block{
     NSAssert(name,@"colunmsDic must not  nil");
@@ -159,35 +154,76 @@
     block?block(result?row:-1):nil;
 }
 
-//MARK: - 获取天数据 modify by nathan 2021.12.15
--(void)insertWithName:(NSString*)name models:(NSArray*)models  block:(void(^)(NSInteger row))block
-{
-    __block BOOL isRollBack = NO;
+
+//MARK: 批量存储
+
+//- (void)insertWithName:(NSString*)name models:(NSArray*)models  block:(void(^)(NSInteger row))block {
+//    __block BOOL isRollBack = NO;
+//    __block BOOL result = NO;
+//    __block NSInteger row = 0;
+//    [self.databaseQueue inDatabase:^(FMDatabase *db) {
+//        [db beginTransaction];
+//        @try {
+//            [models enumerateObjectsUsingBlock:^(id  _Nonnull model, NSUInteger idx, BOOL * _Nonnull stop) {
+//                NSString *sqlStr = [self insertExecuteSQLOfTableName:name dataDic:[model mj_keyValues]];
+//                result = [db executeUpdate:sqlStr];
+//                row = db.lastInsertRowId;
+//            }];
+//        } @catch (NSException *exception) {
+//            isRollBack = YES;
+//            [db rollback];
+//        } @finally {
+//            if (!isRollBack) {
+//                [db commit];
+//            }
+//        }
+//        [db close];
+//     }];
+//    block?block(result?row:-1):nil;
+//}
+
+- (void)insertWithName:(NSString*)name models:(NSArray*)models  block:(void(^)(NSInteger row))block {
     __block BOOL result = NO;
     __block NSInteger row = 0;
-    [self.databaseQueue inDatabase:^(FMDatabase *db) {
-        [db beginTransaction];
-        @try {
-            [models enumerateObjectsUsingBlock:^(id  _Nonnull model, NSUInteger idx, BOOL * _Nonnull stop) {
-                NSString *sqlStr = [self insertExecuteSQLOfTableName:name dataDic:[model mj_keyValues]];
-                result = [db executeUpdate:sqlStr];
-                row = db.lastInsertRowId;
-            }];
-        } @catch (NSException *exception) {
-            isRollBack = YES;
-            [db rollback];
-        } @finally {
-            if (!isRollBack)
-            {
-                [db commit];
+    NSString *keyStr = nil;
+    NSString *valuesStr = nil;
+    NSArray *keys = nil;
+    for (id model in models) {
+        @autoreleasepool {
+            NSDictionary *dic = [[model mj_keyValues] mutableCopy];
+            if (!keyStr) {
+                keys = dic.allKeys;
+                keyStr = [NSString stringWithFormat:@"(%@)",[dic.allKeys componentsJoinedByString:@","]];
             }
+            __block NSString *values = [NSString stringWithFormat:@"("];
+            [keys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL * _Nonnull stop) {
+                id value = [model valueForKey:key];
+                if (!value) {
+                    value = @"";
+                }
+                if ([value isKindOfClass:[NSString class]]) {
+                    values = [values stringByAppendingFormat:@"'%@',",value];
+                }else
+                    values = [values stringByAppendingFormat:@"%@,",value];
+            }];
+            values = [values stringByReplacingCharactersInRange:(NSRange){values.length-1,1} withString:@")"];
+            if (!valuesStr) {
+                valuesStr = values;
+            }else
+                valuesStr = [valuesStr stringByAppendingFormat:@",%@",values];
         }
-        [db close];
-     }];
+    }
+    NSMutableString *sql = [[NSMutableString alloc] initWithFormat:@"INSERT OR REPLACE INTO %@ %@ VALUES %@;", name,keyStr,valuesStr];
+    [self.databaseQueue inDatabase:^(FMDatabase *db) {
+        result = [db executeUpdate:sql];
+        row = db.lastInsertRowId;
+    }];
     block?block(result?row:-1):nil;
 }
 
--(void)insertWithName:(NSString*)name model:(id)model extraCondition:(nullable NSDictionary*)con block:(void(^)(NSInteger row))block{
+
+
+- (void)insertWithName:(NSString*)name model:(id)model extraCondition:(nullable NSDictionary*)con block:(void(^)(NSInteger row))block {
     if (con.count == 0) {
         [self insertWithName:name model:model block:block];
         return;
@@ -198,7 +234,7 @@
     }];
 }
 
--(NSString*)insertExecuteSQLOfTableName:(NSString*)name  dataDic:(NSDictionary*)dic{
+- (NSString*)insertExecuteSQLOfTableName:(NSString*)name  dataDic:(NSDictionary*)dic {
     NSMutableString *sql = [[NSMutableString alloc] initWithFormat:@"INSERT OR REPLACE INTO %@ ", name];
     NSMutableString *values= [[NSMutableString alloc] initWithFormat:@"("];
     NSMutableString *keys = [[NSMutableString alloc] initWithFormat:@"("];
@@ -221,8 +257,14 @@
     return [sql copy];
 }
 
-#pragma mark - 查询数据
--(void)queryDataOfTableName:(NSString*)name  condition:(nullable NSDictionary*)codition model:(Class)class primaryKey:(nullable NSString*)pKey block:(void(^)(NSArray*datas))block{
+
+//MARK: - 查询数据
+
+- (void)queryDataOfTableName:(NSString*)name
+                   condition:(nullable NSDictionary*)codition
+                       model:(Class)class
+                  primaryKey:(nullable NSString*)pKey
+                       block:(void(^)(NSArray*datas))block {
     NSMutableString *querySql = [NSMutableString stringWithFormat:@"SELECT * FROM %@ ", name];
     NSInteger lastIndex = (codition.count-1);
     NSMutableString *values = [NSMutableString string];
@@ -267,9 +309,10 @@
     block?block(resArr):nil;
 }
 
-#pragma mark - 查询数据
--(void)queryDataWithSql:(NSString*)sql model:(Class)class primaryKey:(nullable NSString*)pKey block:(void(^)(NSArray*datas))block{
-//-(void)queryDataWithSql:(NSString*)sql model:(Class)class block:(void(^)(NSArray*datas))block{
+
+//MARK: - 查询数据
+
+- (void)queryDataWithSql:(NSString*)sql model:(Class)class primaryKey:(nullable NSString*)pKey block:(void(^)(NSArray*datas))block {
     NSAssert(sql,@"query sql must be not  nil");
     NSAssert(class,@"cls must  be not  nil");
     NSMutableArray *keys = [NSMutableArray array];
@@ -301,9 +344,10 @@
     block?block(resultArray):nil;
 }
 
-#pragma mark - 更新数据
 
--(void)updatetWithName:(NSString*)name  model:(id)model condition:(NSDictionary*)codition block:(void(^)(NSInteger row))block{
+//MARK:  - 更新数据
+
+- (void)updatetWithName:(NSString*)name  model:(id)model condition:(NSDictionary*)codition block:(void(^)(NSInteger row))block {
     NSMutableString *sql = [NSMutableString stringWithFormat:@"UPDATE %@ ", name];
     NSMutableString *values = [NSMutableString string];
     NSDictionary*modelKeyValues = [model mj_keyValues];
@@ -344,15 +388,13 @@
     }];
 }
 
-#pragma mark - 删除数据
+
+//MARK:  - 删除数据
 
 -(void)deleteWithName:(NSString*)name  condition:(NSDictionary*)condition  block:(void(^)(NSInteger row))block{
     NSMutableString *sql = [NSMutableString stringWithFormat:@"DELETE FROM %@",name];
     NSMutableString *conS = [NSMutableString string];
     [condition.allKeys enumerateObjectsUsingBlock:^(NSString *key, NSUInteger idx, BOOL * _Nonnull stop) {
-//        if ([key isEqualToString:@"id"]) {
-//
-//        }else
         [conS appendFormat:@" %@ = %@ ",key, condition[key]];
         if (idx != condition.count-1)[conS appendString:@" AND "];
     }];
@@ -363,7 +405,8 @@
     }];
 }
 
-#pragma mark - 添加列
+
+//MARK: - 添加列
 
 -(void)addColumnForTable:(NSString*)name columns:(NSArray<NSDictionary*>*)columns{
     [self.databaseQueue inDatabase:^(FMDatabase *db) {
@@ -378,8 +421,10 @@
     }];
 }
 
-#pragma mark - layzing
--(FMDatabasePool *)databaseQueue {
+
+//MARK: - layzing
+
+- (FMDatabasePool *)databaseQueue {
    NSAssert(_con,@"configer must not  nil");
    NSAssert(_con.dirName,@"dirName must not  nil");
    NSAssert(_con.fileName,@"fileName must not  nil");
@@ -394,8 +439,10 @@
     return _queue;
 }
 
-#pragma mark - extra method
+
+//MARK: - extra method
 #define TDC_DBVERSION          @"TDC_DBVersion"
+
 -(void)versionControl{
     NSString * version_old = [[NSUserDefaults standardUserDefaults] stringForKey:TDC_DBVERSION];
     NSString * version_new = [NSString stringWithFormat:@"%@",DB_Version];
