@@ -106,6 +106,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param block 回调
 -(void)queryDataWithSql:(NSString*)sql model:(Class)cls  primaryKey:(nullable NSString*)pKey  block:(void(^)(NSArray*datas))block;
 
+/// 查询最大最小平均值
+/// @param sql sql语句
+/// @param keys 自定义的key 如max、min、avg
+/// @param block 回调 数组[字典]
+- (void)queryDatasWithSql:(NSString *)sql keys:(NSArray *)keys block:(void(^)(NSArray<NSDictionary *> *datas))block;
+
 /// 给表增加列
 /// @param name 表名称
 /// @param columns 列集合

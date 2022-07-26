@@ -345,6 +345,24 @@
 }
 
 
+//MARK: 查询数据
+
+- (void)queryDatasWithSql:(NSString *)sql keys:(NSArray *)keys block:(void(^)(NSArray<NSDictionary *> *datas))block {
+    __block NSMutableArray<NSDictionary *> *resultArray= [NSMutableArray array];
+    [self.databaseQueue inDatabase:^(FMDatabase *db) {
+        FMResultSet *set = [db executeQuery:sql];
+        while (set.next) {
+            __block NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+            for (NSString *key in keys) {
+                [dic setValue:[set objectForColumn:key] forKey:key];
+            }
+            [resultArray addObject:dic];
+        }
+     }];
+    block?block([resultArray mutableCopy]):nil;
+}
+
+
 //MARK:  - 更新数据
 
 - (void)updatetWithName:(NSString*)name  model:(id)model condition:(NSDictionary*)codition block:(void(^)(NSInteger row))block {
